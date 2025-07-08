@@ -6,17 +6,17 @@ provider "aws" {
     allowed_account_ids = [var.aws_account_id]
 }
 
-provider "aws" {
-    region = "us-east-1"
-    alias  = "virginia"
-}
+# provider "aws" {
+#     region = "us-east-1"
+#     alias  = "virginia"
+# }
 
 provider "helm" {
-  kubernetes {
+  kubernetes = {
     host                   = module.eks.cluster_endpoint
     cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
 
-    exec {
+    exec  = {
       api_version = "client.authentication.k8s.io/v1beta1"
       command     = "aws"
       # This requires the awscli to be installed locally where Terraform is executed
@@ -41,8 +41,8 @@ provider "kubectl" {
 
 terraform {
   backend "s3" {
-    bucket = "XXXXXXXXXXXX-bucket-state-file-karpenter"
-    region = "ap-southeast-2"
+    bucket = "207567789842-bucket-state-file-karpenter"
+    region = "us-east-1"
     key    = "karpenter.tfstate"
   }
 
@@ -62,7 +62,7 @@ terraform {
 # Data Sources
 ###############################################################################
 data "aws_ecrpublic_authorization_token" "token" {
-  provider = aws.virginia
+  provider = "aws"
 }
 
 ###############################################################################
@@ -122,7 +122,7 @@ module "eks" {
     karpenter = {
       # Starting on 1.30, AL2023 is the default AMI type for EKS managed node groups
       ami_type       = "AL2023_x86_64_STANDARD"
-      instance_types = ["m5.large"]
+      instance_types = ["t3.small"]
 
       min_size     = 2
       max_size     = 10
